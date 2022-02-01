@@ -132,3 +132,7 @@ dmypy.json
 
 # Minio config files
 */**/.minio.sys
+
+# Ignore Parquet and big csv files
+data/parquet/*
+data/big_csv/*
