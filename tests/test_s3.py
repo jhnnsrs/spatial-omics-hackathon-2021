@@ -3,6 +3,7 @@ import os
 import pytest_benchmark
 import pandas as pd
 import pytest
+<<<<<<< HEAD
 import pyarrow.parquet as pq
 from pyarrow import Table
 
@@ -13,6 +14,8 @@ EIFFEL_TOWER_PARQUET = "parquet/eiffel-tower-smlm.parquet"
 
 LOC_SLML_CSV = "big_csv/loc-smlm.csv"
 LOC_SLML_PARQUET = "parquet/loc-smlm.parquet"
+=======
+>>>>>>> a833141bfd0ea546c4d3cea3650fe0200446ce30
 
 
 @pytest.fixture
