@@ -3,6 +3,16 @@ import os
 import pytest_benchmark
 import pandas as pd
 import pytest
+import pyarrow.parquet as pq
+from pyarrow import Table
+
+
+EIFFEL_TOWER_CSV = "csv/eiffel-tower-smlm.csv"
+EIFFEL_TOWER_PARQUET = "parquet/eiffel-tower-smlm.parquet"
+
+
+LOC_SLML_CSV = "big_csv/loc-smlm.csv"
+LOC_SLML_PARQUET = "parquet/loc-smlm.parquet"
 
 
 @pytest.fixture
@@ -14,11 +24,36 @@ def s3_filesystem():
 
 
 def test_s3_filesystem(s3_filesystem):
-    assert s3_filesystem.exists("csv/eiffel-tower-smlm.csv")
+    assert s3_filesystem.exists(EIFFEL_TOWER_CSV)
 
 
 def test_read_csv(s3_filesystem):
-    with s3_filesystem.open("csv/eiffel-tower-smlm.csv") as f:
+    with s3_filesystem.open(EIFFEL_TOWER_CSV) as f:
         df = pd.read_csv(f)
 
+    assert df.shape == (31464, 3)
+
+
+def test_write_parquet(s3_filesystem):
+    with s3_filesystem.open(EIFFEL_TOWER_CSV) as f:
+        df = pd.read_csv(f)
+
+    arrow_table = Table.from_pandas(df)
+    pq.write_table(arrow_table, EIFFEL_TOWER_PARQUET, filesystem=s3_filesystem)
+
+
+def test_write_parquet_big(s3_filesystem):
+    with s3_filesystem.open(LOC_SLML_CSV) as f:
+        df = pd.read_csv(f)
+
+    arrow_table = Table.from_pandas(df)
+    pq.write_table(arrow_table, LOC_SLML_PARQUET, filesystem=s3_filesystem)
+
+
+def test_read_parquet(s3_filesystem):
+    df = (
+        pq.ParquetDataset(EIFFEL_TOWER_PARQUET, filesystem=s3_filesystem)
+        .read_pandas()
+        .to_pandas()
+    )
     assert df.shape == (31464, 3)
